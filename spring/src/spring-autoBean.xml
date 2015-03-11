@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:p="http://www.springframework.org/schema/p"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	  	 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd"
+	   		default-autowire="byType">
+  	
+  	<!-- byName匹配 （必须Instrumentalist的instrument属性名称与注入Bean的id或name相同）-->
+  	<bean id="kenny" class="com.gavin.bean.Instrumentalist" autowire="byName">
+		<property name="song" value="Jingle Bells"/>
+	</bean>
+	
+	<!-- <bean id="instrument" class="com.gavin.bean.Saxophone" primary="true"/> -->
+	<bean id="instrument" class="com.gavin.bean.Saxophone"/>
+	
+	<!-- byType匹配 （应用只允许一个Bean与需要自动装配的属性相匹配，否则抛异常）-->
+	<!-- 
+		为了避免因为使用byType自动装配而带来的歧义，spring为我们提供了两种选择：
+		1：标识一个首选Bean : Bean的primary属性默认为false，所以为了使用primary属性，应将首选Bean的primary属性设为 true
+		2：取消某个Bean自动装配的候选资格 : 使用autowire-candidate="false" 自动装配时则忽略作为候选Bean
+	 -->
+  	<bean id="kenny2" class="com.gavin.bean.Instrumentalist" autowire="byType">
+		<property name="song" value="Jingle Bells"/>
+	</bean>
+	
+	<bean id="piano" class="com.gavin.bean.Piano" autowire-candidate="false"/>
+	
+	<!-- constructor匹配(与byType有类似的歧义问题) -->
+	<bean id="duke" class="com.gavin.bean.PoeticJuggler" autowire="constructor"/>
+	
+	<bean id="sonnet29" class="com.gavin.bean.Sonnet29"/>
+	
+</beans>

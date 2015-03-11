@@ -2,7 +2,101 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	   xmlns:p="http://www.springframework.org/schema/p"
 	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans
-	   		http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
-  
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd">
+
+	<!-- 字面值 -->
+	<bean>
+		<property name="count" value="#{5}"/>
+		<property name="message" value=" the value is #{5}"/>
+		<property name="double" value="#{89.7}"/>
+		<property name="capacity" value="#{1e4}"/>   <!-- 科学计数法  =10000 -->
+		<property name="name" value="#{'chuck'}"/> <!-- 装配String值 -->
+		<property name='name' value='#{"chuck"}'/> <!-- 装配XML值 -->
+		<property name="enabled" value="#{false}"/> <!-- 装配String值 -->
+	</bean>
+	
+	<!-- 引用Bean、Properties、方法 -->
+	<bean>
+		<property name="instrument" value="#{saxophone}"/>  <!-- 引用Bean -->
+		<property name="song" value="#{kenny.song}"/>  <!-- 引用Bean的属性 -->
+		<property name="song" value="#{songSelector.selectSong().toUpperCase()}"/>  <!-- 引用Bean的方法 -->
+		<property name="song" value="#{songSelector.selectSong()?.toUpperCase()}"/>  <!-- 处理空指针（?.运算符：仅在左方法不为null时调用右方法） -->
+	</bean>
+	
+	<!-- 操作类 -->
+	<bean>
+		<property name="name" value="#{T(java.lang.Math).PI}"/>  <!-- 装配静态常量 -->
+		<property name="name" value="#{T(java.lang.Math).random()}"/>  <!-- 装配静态方法 -->
+	</bean>
+	
+	<!-- 数值运算 -->
+	<bean>
+		<property name="name" value="#{counter.total - 20}"/>  
+		<property name="name" value="#{2 * T(java.lang.Math).PI * circle.radius ^ 2}"/>    <!-- 乘方 -->
+		<property name="name" value="#{T(java.lang.Math).PI * circle.radius}"/> 
+		<property name="name" value="#{counter.total / counter.count}"/>  
+		<property name="name" value="#{counter.total % counter.count}"/>  
+		<property name="name" value="#{performer.firstName + ' ' + performer.lastName}"/>  <!-- 字符串连接 -->
+	</bean>
+	
+	<!-- 比较值 -->
+	<bean>
+		<!-- spring配置中比较符号最好用文本替代 -->
+		<property name="equal" value="#{counter.total eq 100}"/>  <!-- 返回布尔值 -->
+		<property name="equal" value="#{counter.total le 100}"/>  <!-- 返回布尔值 -->
+	</bean>
+	
+	<!-- 逻辑表达式 -->
+	<bean>
+		<property name="equal" value="#{shape.kind == 'circle' and shape.primeter gt 10000}"/>  <!-- 返回布尔值 -->
+		<!-- 布尔值求反(两种) -->
+		<property name="name" value="#{!product.avaliable}"/>  <!-- 返回布尔值 -->
+		<property name="name" value="#{not product.avaliable}"/>  <!-- 返回布尔值 -->
+	</bean>
+	
+	<!-- 条件表达式 -->
+	<bean>
+		<!-- 三元运算符 -->
+		<property name="instrument2" value="#{songSelector.selectSong() == 'Jingle Bells' ? piano : saxophone}"/> 
+		<property name="instrument2" value="#{kenny.song != null ?: 'Greesleeves'}"/>  <!-- 如果kenny.song不为null，结果就为 kenny.song ，否则为 Greesleeves -->
+	</bean>
+	
+	<!-- 正则表达式 -->
+	<bean>
+		<property name="validEmail" value="#{admin.email matches '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.com'}"/> 
+	</bean>
+	
+	<!-- 筛选集合 -->
+	<util:list id="cities">
+		<bean class="com.gavin.bean.City" p:name="Chicago" p:state="IL" p:population="2343223"/>
+		<bean class="com.gavin.bean.City" p:name="Atlanta" p:state="GA" p:population="43223"/>
+		<bean class="com.gavin.bean.City" p:name="Dallas" p:state="TX" p:population="223"/>
+	</util:list>
+	
+	<bean>
+		<property name="chosenCity" value="#{cities[2]}"/>  <!-- 装配第三个city -->
+		<property name="chosenCity" value="#{cities['Dallas']}"/>  <!-- 装配key为Dallas的city （假设cities以其名字作为key放入Map集合中） -->
+		<property name="bigcities" value="#{cities.?[population gt 10000]}"/>  <!-- 筛选人口大于1w的Bean装配 -->
+		<property name="aBigCity" value="#{cities.^[population gt 10000]}"/>  <!-- 查询第一个符合条件的大城市 -->
+		<property name="aBigCity" value="#{cities.$[population gt 10000]}"/>  <!-- 查询最后一个符合条件的大城市 -->
+	</bean>
+	
+	<util:properties id="settings" location="classpath:settings.properties"/>
+		
+	<bean>
+		<property name="name" value="#{settings['twitter.accessToken']}"/> 
+		<!-- spring还为SpEL创造了两种特殊的选择属性的方式：
+			systemEnvironment：应用程序所在机器上的所有环境变量；
+			systemProperties：应用程序启动时所设置的所有属性； -->
+		<property name="homePath" value="#{systemEnvironment['HOME']}"/> 
+		<property name="homePath" value="#{systemProperties['application.home']}"/> 
+	</bean>
+	
+	<!-- 集合投影(从集合的每一个成员中选择特定的属性放入一个新的集合中，运算符：.![] ) -->
+	<bean>
+		<property name="cityNames" value="#{cities.![name]}"/>  <!-- 包含城市名称的一个String类型的集合 -->
+		<property name="cityNames" value="#{cities.![name + ',' + state]}"/>  <!-- 包含城市名称和国家的一个String类型的集合 -->
+	</bean>
 </beans>
