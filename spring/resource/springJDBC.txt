@@ -1,0 +1,46 @@
+一、Spring提供的数据访问模版，分别适用于不同的持久化机制
+
+	模板类(org.springframework.*)                                 用途
+	
+	jca.cci.core.CciTemplate                                JCA CCI连接
+	jdbc.core.support.JdbcDaoSupport                        JDBC连接
+	jdbc.core.namedparam.NamedParameterJdbcDaoSupport 		 带有命名参数的JDBC连接
+	jdbc.core.simple.SimpleJdbcDaoSupport  					 用Java5进行了简化的JDBC连接
+	orm.hibernate.support.HibernateDaoSupport    			Hibernate 2.x 的 Session
+	orm.hibernate3.support.HibernateDaoSupport    			Hibernate 3.x 的 Session
+	orm.ibatis.support.SqlMapClientDaoSupport    			ibatis sqlMap 客户端
+	orm.jdo.support.JdoDaoSupport                  			Java数据对象(java data object)实现
+	orm.jpa.support.JpaDaoSupport                  			Java持久化API的实体管理器
+	
+二、配置数据源
+
+	Spring提供了在Spring上下文中配置数据源Bean的多种方式，包括：
+	
+		通过JDBC驱动程序定义的数据源；
+		通过JNDI查找的数据源；
+		连接池的数据源。
+		
+	1、使用JNDI数据源
+		
+		好处：数据源完全可以在应用程序之外进行管理，这样应用程序只需在访问数据库的时候查找数据源就可以了。在服务器中管理的数据源通常以池的方式组织，从而具备更好的性能，并且支持系统管理员对其进行热切换。
+		
+	2、使用数据源连接池(DBCP)
+	
+		DBCP的BasicDataSource最重要的池配置属性：
+		
+		initialSize : 池启动时创建的连接数量
+		maxActive ： 同一时间可从池中分配的最多连接数。如果设置为0，表示无限制
+		maxIdle ： 池里不会被释放的最多空闲连接数。如果设置为0，表示无限制
+		minIdle ： 在不创建新连接的情况下，池中保持空闲的最小连接数
+		maxOpenPreparedStatements ： 在同一时间能够从语句池中分配的预处理语句的最大数量。如果设置为-1，表示无限等待
+		minEvictableIdleTimeMillis ： 连接在池中保持空闲而不被回收的最大时间
+		poolPreparedStatements ： 是否对预处理语句进行池管理(布尔值)
+		
+	3、使用基于JDBC驱动的数据源(无连接池功能)
+	
+		Spring提供了两种数据源对象供选择(都位于 org.springframework.jdbc.datasource 包中)
+		
+		DriverManagerDataSource (支持多线程；每次请求创建新连接) : 在每个连接请求时都会返回一个新建的连接。
+			与DBCP的BasicDataSource不同，连接并没有进行池化管理。
+		SingleConnectionDataSource (不适用于多线程的应用) ： 在每个连接请求时都会返回同一个连接。
+			尽管 SingleConnectionDataSource不是严格意义上的连接池数据源，但是你可以将其视为只有一个连接的池。

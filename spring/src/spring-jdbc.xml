@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xmlns:jee="http://www.springframework.org/schema/jee"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd
+	     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+	     http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd">
+
+	<context:component-scan base-package="com.gavin.jdbc.dao.impl"/>
+
+	<!-- 使用JNDI数据源
+	jee命名空间下的  jee:jndi-lookup 元素可以用于检索JNDI中的任何对象(包括数据源)并将其用于Spring Bean中。
+	例如：如果应用程序的数据源配置在JNDI中，则可以使用此元素并将其装配到Spring中。
+	jndi-name ： 用于指定JNDI中资源的名称 
+	resource-ref ： 如果只设置了 jndi-name 属性，那么就会根据指定的名称查找数据源。但是，如果程序运行在Java应用程序服务器中，则需要将 resource-ref 设置为 true，这样给定的 jndi-name 将会自动添加 java:comp/env/ 前缀。-->
+	
+	<!-- <jee:jndi-lookup id="dataSource" jndi-name="/jdbc/SpitterDS" resource-ref="true"/> -->
+	
+	<!-- 使用数据源连接池(DBCP) -->
+	
+	<!-- <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property name="url" value="jdbc:mysql://127.0.0.1:3306/mybatis"/>
+		<property name="username" value="root"/>
+		<property name="password" value="ok"/>
+		
+		<property name="initialSize" value="5"/>
+		<property name="maxActive" value="10"/>
+	</bean> -->
+	
+	<!-- 基于JDBC驱动的数据源 -->
+	
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property name="url" value="jdbc:mysql://127.0.0.1:3306/spring"/>
+		<property name="username" value="root"/>
+		<property name="password" value="ok"/>
+	</bean>
+	
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+		<constructor-arg ref="dataSource"/>
+	</bean>
+	
+	
+</beans>
